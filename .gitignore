@@ -29,3 +29,6 @@ video_converter_thumbs/
 # IDE
 .idea/
 .vscode/
+
+# PyInstaller 自动生成
+*.spec
