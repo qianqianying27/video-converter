@@ -14,6 +14,8 @@ from pathlib import Path
 
 APP_DIR = Path(__file__).resolve().parent.parent
 BIN_DIR = APP_DIR / "bin"
+
+# 缩略图缓存放在系统临时目录，避免污染项目目录（启动时清理一次）
 THUMB_CACHE_DIR = Path(tempfile.gettempdir()) / "video_converter_thumbs"
 
 # subprocess 的 CREATE_NO_WINDOW：避免调用 ffmpeg 时闪黑框

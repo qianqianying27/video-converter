@@ -3,6 +3,8 @@
 Windows 桌面客户端：**PySide6 + 本地 ffmpeg CLI**。拖入视频即可查看信息与缩略图，
 按预设转成 MP4 / MKV / WebM / GIF / MP3，支持队列、进度、取消与中文错误提示。
 
+仓库：https://github.com/qianqianying27/video-converter
+
 ![主界面](docs/screenshot.png)
 
 ## 功能

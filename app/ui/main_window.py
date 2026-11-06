@@ -326,12 +326,28 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"ffmpeg：{self._ffmpeg}")
 
     def _connect_signals(self) -> None:
+        self.setAcceptDrops(True)
         self.video_list.itemSelectionChanged.connect(self._refresh_details)
         self.video_list.filesDropped.connect(self._add_files)
         self._queue.job_added.connect(self._on_job_added)
         self._queue.job_changed.connect(self._on_job_changed)
         self._queue.busy_changed.connect(self._on_busy_changed)
         self._queue.all_finished.connect(self._on_all_finished)
+
+    # 支持把文件拖到窗口任意位置
+    def dragEnterEvent(self, event) -> None:  # noqa: N802
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event) -> None:  # noqa: N802
+        paths = [u.toLocalFile() for u in event.mimeData().urls() if u.isLocalFile()]
+        if paths:
+            self._add_files(paths)
+            event.acceptProposedAction()
+        else:
+            event.ignore()
 
     # ================= 设置持久化 =================
 

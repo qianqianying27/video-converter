@@ -1,4 +1,4 @@
-# 下载 ffmpeg / ffprobe 到项目的 bin 目录（Windows）
+﻿# 下载 ffmpeg / ffprobe 到项目的 bin 目录（Windows）
 # 用法：powershell -ExecutionPolicy Bypass -File scripts\fetch_ffmpeg.ps1
 
 param(

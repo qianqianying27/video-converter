@@ -23,6 +23,8 @@ dist/
 # 测试产物
 tests/_artifacts/
 reports/
+pytest-of-*/
+video_converter_thumbs/
 
 # IDE
 .idea/

@@ -1,4 +1,4 @@
-# 打包脚本：PyInstaller onedir（内含 bin\ffmpeg.exe、bin\ffprobe.exe）
+﻿# 打包脚本：PyInstaller onedir（内含 bin\ffmpeg.exe、bin\ffprobe.exe）
 # 用法：powershell -ExecutionPolicy Bypass -File scripts\build.ps1
 
 param(

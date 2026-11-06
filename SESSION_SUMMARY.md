@@ -63,6 +63,9 @@ PyInstaller onedir + 内置 bin + 手动指定 ffmpeg。
 
 此外：真实生成 `sample.mp4`、`docs/screenshot.png`（Windows 平台渲染），并检查了界面布局与中文字体。
 
+**打包验证**：`scripts/build.ps1` 已成功产出 `dist\VideoConverter\`（含 `_internal\bin\ffmpeg.exe`、`ffprobe.exe`）。
+当前会话为无头/远程环境，未做人工点击验收；建议评审机首次启动时确认窗口与转换流程。
+
 ## 6. 踩坑记录（真实发生）
 
 1. **ffmpeg 下载源限速**：gyan.dev 约 14KB/s；GitHub 直连约 30KB/s；最终走 gh-proxy 镜像（约 0.5–1.3MB/s）完成 192MB 下载。
