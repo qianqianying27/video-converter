@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import time
 
+from PySide6.QtCore import Qt
+from PySide6.QtTest import QTest
+
 from app.ui.main_window import MainWindow
 
 
@@ -39,7 +42,9 @@ def test_add_file_and_convert(qapp, tools, sample_video, tmp_path):
     window.output_edit.setText(str(tmp_path))
     index = window.preset_combo.findData("mp3")
     window.preset_combo.setCurrentIndex(index)
-    window._start_conversion()
+    # 真实模拟鼠标点击「开始转换」按钮，而不是直接调用槽函数
+    assert window.convert_btn.isEnabled()
+    QTest.mouseClick(window.convert_btn, Qt.MouseButton.LeftButton)
 
     deadline = time.time() + 60
     while time.time() < deadline:

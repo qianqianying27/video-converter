@@ -15,9 +15,16 @@ ffmpeg_download.zip
 pip-*/
 .pytmp/
 
+# 本地示例素材（截图/演示用，不入库）
+.samples/
+
 # 构建产物
 build/
 dist/
+release/
+
+# PyInstaller 自动生成
+*.spec
 *.spec.bak
 
 # 测试产物
@@ -29,6 +36,3 @@ video_converter_thumbs/
 # IDE
 .idea/
 .vscode/
-
-# PyInstaller �Զ�����
-*.spec

@@ -2,6 +2,7 @@
 
 > 项目：视频格式转换器（Video Converter）
 > 仓库：https://github.com/qianqianying27/video-converter
+> Release：https://github.com/qianqianying27/video-converter/releases/tag/v1.0.0
 > 交付形态：Windows 桌面客户端（PySide6 + ffmpeg CLI），限时三天的笔试题实现。
 
 ---
@@ -61,10 +62,18 @@ PyInstaller onedir + 内置 bin + 手动指定 ffmpeg。
 | 集成（8） | 现场生成 2s 测试视频 → 探测、抽帧、转 WebM、缩放 240p、抽 MP3、GIF、MKV copy 验证编码未变、损坏文件报错 |
 | GUI/队列（4） | 主窗口构造、添加文件→信息/缩略图→点击转换→完成的完整链路、队列成功、队列失败 |
 
-此外：真实生成 `sample.mp4`、`docs/screenshot.png`（Windows 平台渲染），并检查了界面布局与中文字体。
+此外，第二轮按评审意见补齐了「可被直接体验」的证据：
 
-**打包验证**：`scripts/build.ps1` 已成功产出 `dist\VideoConverter\`（含 `_internal\bin\ffmpeg.exe`、`ffprobe.exe`）。
-当前会话为无头/远程环境，未做人工点击验收；建议评审机首次启动时确认窗口与转换流程。
+- **真实素材截图**：横屏用 MDN CC0 实拍 `flower.mp4`，竖屏为其裁剪版；`scripts/screenshot.py`
+  会真实跑一次 MP4 转换后再截屏，队列状态与「目标格式」严格一致（`docs/screenshot*.png`）。
+- **界面重做**：页头、空状态引导、两列信息布局、深色预览卡片、按状态变色的进度条；
+  字号、留白、控件样式统一（`app/main.py` QSS + `main_window.py`）。
+- **打包自检**：`dist\VideoConverter\VideoConverter.exe --selftest` 退出码 0
+  （内置 ffmpeg 可定位、主窗口可构造）；Release zip 165.5MB 已上传。
+- **真实鼠标点击**：GUI 全链路测试改为 `QTest.mouseClick` 点击「开始转换」按钮。
+- **演示 GIF**：30 秒 1080p 源 → WebM 720p，真实转换 63s，录制成 `docs/demo.gif`
+  （包含 36% 进度、速度 0.51x、剩余约 37s 的中间帧）。
+- **量化对比**：同一 30s/1080p 文件，MKV `-c copy` **0.10s** vs H.264 重编码 **8.67s**（约 **87×**）。
 
 ## 6. 踩坑记录（真实发生）
 
@@ -96,3 +105,18 @@ powershell -ExecutionPolicy Bypass -File scripts\build.ps1         # 打包
 ```
 
 环境：Windows 11 + Python 3.12.7 + PySide6-Essentials 6.12.0 + ffmpeg N-128433（BtbN GPL build）。
+
+## 9. 第二轮评审反馈与处理
+
+| # | 反馈 | 处理结果 |
+| --- | --- | --- |
+| 1 | 界面观感偏「能用」，缺产品感 | 重做 QSS 与布局：页头/副标题、空状态引导、两列信息、深色预览卡片、按状态变色进度条、统一字号与留白、真实鼠标悬停样式 |
+| 2 | 没有 Release，评审成本高 | 打 `v1.0.0` Release，附 `VideoConverter-1.0.0-win64.zip`（165.5MB，内置 ffmpeg/ffprobe，解压即用） |
+| 3 | 截图是彩条测试视频 | 改用 MDN CC0 实拍素材（横屏）与其裁剪竖屏版；README 同时展示两种比例 |
+| 4 | 截图里设置与队列状态不一致 | 截图脚本先点「开始转换」真实完成一次 MP4 转换，再截屏；队列显示「MP4 (H.264) · 完成 · 100%」，与设置区一致 |
+| 5 | 文档自述「未做人工点击验收」 | GUI 测试改为 `QTest.mouseClick` 真点击；打包产物 `--selftest` 退出码 0；录制真实转换过程的 `docs/demo.gif` |
+| 6 | ffmpeg GPL 构建缺少许可说明 | 新增 `THIRD_PARTY_NOTICES.md`（FFmpeg/PySide6/PyInstaller），README 增加许可章节，打包脚本把说明复制进产物 |
+| 7 | 缺少量化优化数据 | 同一 30s/1080p 源：MKV `-c copy` 0.10s vs MP4 重编码 8.67s（约 87×），写入 README 与本文档 |
+
+**其他说明**：所有改动都局限在 `D:\dsh\video-converter`（独立 git 仓库），
+未在 `D:\dsh` 根目录执行 `git add .`，不影响原有产线上位机项目。

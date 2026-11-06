@@ -37,4 +37,9 @@ Write-Host "PyInstaller 打包…"
 
 if ($LASTEXITCODE -ne 0) { throw "PyInstaller 打包失败" }
 
+# 随包附带第三方许可说明（ffmpeg 为 GPL 构建，分发时需要）
+$distDir = Join-Path $root "dist\VideoConverter"
+Copy-Item (Join-Path $root "THIRD_PARTY_NOTICES.md") (Join-Path $distDir "THIRD_PARTY_NOTICES.md") -Force
+Copy-Item (Join-Path $root "THIRD_PARTY_NOTICES.md") (Join-Path $distDir "_internal\bin\THIRD_PARTY_NOTICES.md") -Force
+
 Write-Host "完成：$root\dist\VideoConverter"

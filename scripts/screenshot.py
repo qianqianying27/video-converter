@@ -1,16 +1,24 @@
-"""用离屏模式跑起主界面并截图（用于 README / 交付文档）。
+"""跑起主界面、真实执行一次转换并截图（README / 交付文档用）。
 
-用法：python scripts/screenshot.py [视频路径]
+用法：
+    python scripts/screenshot.py [--scale-limit N]
+
+前置：仓库根目录 .samples/ 下有 flower.mp4（横屏）与 portrait.mp4（竖屏）。
+    可用 scripts/fetch_samples.ps1 获取/生成。
 """
 
 from __future__ import annotations
 
-import os
 import sys
 import time
 from pathlib import Path
 
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+import os
+
+if sys.platform == "win32":
+    os.environ.setdefault("QT_QPA_PLATFORM", "windows")
+else:
+    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -20,7 +28,6 @@ from PySide6.QtWidgets import QApplication  # noqa: E402
 
 from app.env import resolve_tools  # noqa: E402
 from app.main import QSS  # noqa: E402
-from app.presets import get_preset  # noqa: E402
 from app.settings import AppSettings  # noqa: E402
 from app.ui.main_window import MainWindow  # noqa: E402
 
@@ -36,42 +43,78 @@ def _install_cjk_font(app: QApplication) -> None:
                 return
 
 
+def _wait(app: QApplication, predicate, timeout: float) -> bool:
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        app.processEvents()
+        if predicate():
+            return True
+        time.sleep(0.05)
+    return False
+
+
+def _select(window: MainWindow, path: Path) -> bool:
+    item = window._items.get(path.resolve())
+    if item is None:
+        return False
+    window.video_list.setCurrentItem(item)
+    app = QApplication.instance()
+    app.processEvents()
+    return True
+
+
 def main() -> int:
-    video = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "sample.mp4"
-    if not video.exists():
-        print(f"找不到演示视频：{video}", file=sys.stderr)
-        return 2
+    landscape = (ROOT / ".samples" / "flower.mp4")
+    portrait = (ROOT / ".samples" / "portrait.mp4")
+    for p in (landscape, portrait):
+        if not p.exists():
+            print(f"缺少素材：{p}（先运行 scripts/fetch_samples.ps1）", file=sys.stderr)
+            return 2
 
     app = QApplication(sys.argv)
     app.setStyle("Fusion")
+    app.setFont(QFont("Microsoft YaHei UI", 10))
     app.setStyleSheet(QSS)
     _install_cjk_font(app)
+
     ffmpeg, ffprobe = resolve_tools(None)
     window = MainWindow(ffmpeg, ffprobe, AppSettings())
-    window.resize(1180, 860)
+    window.resize(1200, 900)
     window.show()
 
-    window._add_files([str(video)])
-    deadline = time.time() + 30
-    while time.time() < deadline:
-        app.processEvents()
-        if video.resolve() in window._infos and video.resolve() in window._thumbs:
-            break
-        time.sleep(0.05)
-    app.processEvents()
+    out_dir = ROOT / ".samples" / "out"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for old in out_dir.glob("flower_mp4*"):
+        old.unlink(missing_ok=True)
 
-    # 放一条排队中的任务，截图里能看到队列区域
-    if video.resolve() in window._infos:
-        info = window._infos[video.resolve()]
-        window._queue.add(video.resolve(), get_preset("webm"),
-                          Path(window.output_edit.text() or ROOT), info.duration)
-    app.processEvents()
+    window._add_files([str(landscape), str(portrait)])
+    _wait(app, lambda: len(window._infos) == 2, 30)
+    window.output_edit.setText(str(out_dir))
 
-    out = ROOT / "docs" / "screenshot.png"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    window.statusBar().showMessage("就绪", 0)
-    window.grab().save(str(out))
-    print(f"已保存：{out}")
+    # 截图 1：横屏视频 + 一次真实的 MP4 转换（队列状态与设置一致）
+    _select(window, landscape)
+    index = window.preset_combo.findData("mp4")
+    if index >= 0:
+        window.preset_combo.setCurrentIndex(index)
+    app.processEvents()
+    started = time.time()
+    window.convert_btn.click()
+    _wait(app, lambda: bool(window._queue.jobs) and window._queue.jobs[0].is_finished, 120)
+    elapsed = time.time() - started
+    if window._queue.jobs:
+        job = window._queue.jobs[0]
+        window.statusBar().showMessage(f"转换完成：{job.output.name}（耗时 {elapsed:.1f}s）", 0)
+    app.processEvents()
+    window.grab().save(str(ROOT / "docs" / "screenshot.png"))
+
+    # 截图 2：竖屏视频（验证旋转/竖屏分辨率展示）
+    _select(window, portrait)
+    app.processEvents()
+    time.sleep(0.2)
+    app.processEvents()
+    window.grab().save(str(ROOT / "docs" / "screenshot-portrait.png"))
+
+    print("已保存 docs/screenshot.png 与 docs/screenshot-portrait.png")
     return 0
 
 
