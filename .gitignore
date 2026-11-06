@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# ffmpeg 二进制（体积大，不入库；用 scripts/fetch_ffmpeg.ps1 获取）
+bin/*.exe
+ffmpeg_download.zip
+.tmp_ffmpeg/
+
+# 本地安装缓存
+.wheels/
+pip-*/
+.pytmp/
+
+# 构建产物
+build/
+dist/
+*.spec.bak
+
+# 测试产物
+tests/_artifacts/
+reports/
+
+# IDE
+.idea/
+.vscode/
