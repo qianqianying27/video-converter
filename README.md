@@ -5,6 +5,9 @@ Windows 桌面客户端：**PySide6 + 本地 ffmpeg CLI**。拖入视频即可�
 
 仓库：https://github.com/qianqianying27/video-converter
 
+[![CI](https://github.com/qianqianying27/video-converter/actions/workflows/ci.yml/badge.svg)](https://github.com/qianqianying27/video-converter/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/qianqianying27/video-converter?label=Release&color=blue)](https://github.com/qianqianying27/video-converter/releases)
+
 ## 评审快速体验（推荐）
 
 到 [Releases](https://github.com/qianqianying27/video-converter/releases) 下载
@@ -17,7 +20,7 @@ Windows 桌面客户端：**PySide6 + 本地 ffmpeg CLI**。拖入视频即可�
   <img src="docs/screenshot-portrait.png" width="46%" alt="竖屏视频">
 </p>
 
-30 秒真实转换过程（1080p → WebM 720p，可看到进度/速度/剩余时间）：
+真实转换过程录屏（1080p → MP4 720p，约 10 秒，含进度/速度/剩余时间）：
 
 ![演示](docs/demo.gif)
 

@@ -1,4 +1,4 @@
-"""录制一段界面演示 GIF：加载视频 → 选择 WebM → 点击转换 → 进度 → 完成。
+"""录制一段界面演示 GIF：加载视频 → 选择 MP4 720p → 点击转换 → 进度 → 完成。
 
 用法：python scripts/demo_capture.py
 前置：.samples/bench_1080p.mp4（30s 1080p，由 scripts/fetch_samples.ps1 或手动生成）
@@ -31,7 +31,7 @@ from app.main import QSS  # noqa: E402
 from app.settings import AppSettings  # noqa: E402
 from app.ui.main_window import MainWindow  # noqa: E402
 
-FPS = 5
+FPS = 10
 FRAME_INTERVAL = 1.0 / FPS
 
 
@@ -54,7 +54,7 @@ class Recorder:
 
     def frame(self) -> None:
         self.app.processEvents()
-        self.window.grab().save(str(self.frame_dir / f"frame_{self.count:04d}.png"))
+        self.window.grab().save(str(self.frame_dir / f"frame_{self.count:04d}.jpg"), "JPG", 90)
         self.count += 1
 
     def hold(self, seconds: float) -> None:
@@ -77,13 +77,13 @@ def main() -> int:
 
     frame_dir = ROOT / ".samples" / "demo_frames"
     if frame_dir.exists():
-        for f in frame_dir.glob("frame_*.png"):
+        for f in frame_dir.glob("frame_*.jpg"):
             f.unlink()
     frame_dir.mkdir(parents=True, exist_ok=True)
 
     out_dir = ROOT / ".samples" / "demo_out"
     out_dir.mkdir(parents=True, exist_ok=True)
-    for old in out_dir.glob("bench_1080p_webm*"):
+    for old in out_dir.glob("bench_1080p_mp4*"):
         old.unlink(missing_ok=True)
 
     app = QApplication(sys.argv)
@@ -106,7 +106,7 @@ def main() -> int:
         time.sleep(0.03)
     window.output_edit.setText(str(out_dir))
 
-    index = window.preset_combo.findData("webm")
+    index = window.preset_combo.findData("mp4")
     if index >= 0:
         window.preset_combo.setCurrentIndex(index)
     window.resolution_combo.setCurrentText("720p")
@@ -133,7 +133,7 @@ def main() -> int:
     cmd = [
         str(ffmpeg), "-hide_banner", "-y",
         "-framerate", str(FPS),
-        "-i", str(frame_dir / "frame_%04d.png"),
+        "-i", str(frame_dir / "frame_%04d.jpg"),
         "-vf",
         "scale=900:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=160[p];[s1][p]paletteuse",
         str(gif),
